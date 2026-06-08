@@ -5,9 +5,12 @@ import {
   Users, 
   Contact, 
   MessageSquare, 
-  Send 
+  Send,
+  LogOut,
+  User as UserIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -15,7 +18,7 @@ interface AppLayoutProps {
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/resellers", label: "Resellers", icon: Users },
+  { href: "/resellers", label: "Resellers", icon: Users, role: "admin" },
   { href: "/clients", label: "Clients", icon: Contact },
   { href: "/messages", label: "Messages", icon: MessageSquare },
   { href: "/send", label: "Send SMS", icon: Send },
@@ -23,6 +26,11 @@ const NAV_ITEMS = [
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
+
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => !item.role || item.role === user?.role
+  );
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
@@ -41,7 +49,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2 mt-4 px-3">
             Menu
           </div>
-          {NAV_ITEMS.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
             return (
@@ -61,6 +69,35 @@ export function AppLayout({ children }: AppLayoutProps) {
             );
           })}
         </nav>
+
+        {user && (
+          <div className="p-3 mt-auto border-t border-sidebar-border shrink-0">
+            <div className="flex items-center gap-3 px-3 py-2 mb-2">
+              <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center shrink-0">
+                <UserIcon className="w-4 h-4 text-sidebar-foreground" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-medium text-sidebar-foreground truncate">
+                  {user.username}
+                </span>
+                <span className="text-xs text-sidebar-foreground/50 capitalize truncate flex items-center gap-1.5">
+                  <span className={cn(
+                    "w-1.5 h-1.5 rounded-full",
+                    user.role === "admin" ? "bg-red-500" : "bg-blue-500"
+                  )} />
+                  {user.role}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => logout()}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-destructive hover:bg-destructive/20 hover:text-destructive"
+            >
+              <LogOut className="w-4 h-4" />
+              Log out
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* Main Content */}

@@ -13,11 +13,13 @@ router.get("/credits/transactions", async (req, res): Promise<void> => {
   }
 
   const conditions: SQL[] = [];
-  if (query.data.entityType) {
-    conditions.push(eq(creditTransactionsTable.entityType, query.data.entityType));
-  }
-  if (query.data.entityId) {
-    conditions.push(eq(creditTransactionsTable.entityId, query.data.entityId));
+
+  if (req.user!.role === "reseller") {
+    conditions.push(eq(creditTransactionsTable.entityType, "reseller"));
+    conditions.push(eq(creditTransactionsTable.entityId, req.user!.resellerId!));
+  } else {
+    if (query.data.entityType) conditions.push(eq(creditTransactionsTable.entityType, query.data.entityType));
+    if (query.data.entityId) conditions.push(eq(creditTransactionsTable.entityId, query.data.entityId));
   }
 
   const limit = query.data.limit ?? 50;

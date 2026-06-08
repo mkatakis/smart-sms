@@ -1,0 +1,26 @@
+αι — multi-tenant: ο admin βλέπει τα πάντα, και κάθε reseller μπαίνει με δικό του login και βλέπει μόνο τα δικά του (clients, μηνύματα, credits). Να το πλήρες ενοποιημένο prompt (στείλε ΑΥΤΟ στον Replit Agent αντί για το προηγούμενο):
+
+Add authentication with two roles: admin and reseller, with strict per-reseller data isolation. Currently the API is fully open.
+
+1. DB (lib/db): add users table: id PK, username unique not null, passwordHash not null, role text not null ('admin' | 'reseller'), resellerId integer nullable (FK → resellers.id; required when role='reseller', null for admin), createdAt. Add a session table for connect-pg-simple.
+
+2. Backend (artifacts/api-server):
+
+express-session + connect-pg-simple (Postgres store), secret from SESSION_SECRET, cookie httpOnly, sameSite:'lax', secure in production, 7-day maxAge. Add app.set('trust proxy', 1) (behind Apache HTTPS proxy). Hash with bcrypt.
+Routes: POST /api/auth/login, POST /api/auth/logout, GET /api/auth/me (returns {id, username, role, resellerId}).
+requireAuth middleware → 401 if not logged in; sets req.user = {id, role, resellerId}. Apply to ALL /api routes except /api/auth/*.
+Role enforcement (critical):
+admin: full access to everything (all resellers, clients, messages, stats).
+reseller: scoped to their own resellerId only. Specifically:
+GET /api/clients, /api/messages, /api/stats → filter to req.user.resellerId.
+POST /api/messages/send → force resellerId = req.user.resellerId (ignore any resellerId in body); only allow sending for their own clients.
+GET/PATCH/DELETE /api/clients/:id and /api/messages/:id → 404/403 if the record's resellerId ≠ req.user.resellerId.
+Reseller management routes (POST/PATCH/DELETE /api/resellers, list all resellers, top-up credits) → admin only (requireAdmin middleware, 403 for resellers). A reseller may only GET their own reseller record.
+CLI scripts: create-admin <username> <password> and create-reseller-user <resellerId> <username> <password> (both bcrypt-hash, insert into users).
+When an admin creates a reseller via POST /api/resellers, optionally accept {username, password} to also create that reseller's login user in the same request.
+3. Frontend (artifacts/sms-platform):
+
+Login page (/login) → POST /api/auth/login with credentials:'include'. All API fetches use credentials:'include'.
+On load call GET /api/auth/me; if 401 → redirect /login. Auth guard around all routes. Logout button.
+Role-aware UI: if role==='admin' show full nav (resellers, all clients/messages, send). If role==='reseller' hide reseller-management pages — show only their clients, messages, send form, and their credit balance.
+4. No hardcoded secrets. Update .env.example. Commit and push to GitHub.

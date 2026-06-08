@@ -4,31 +4,36 @@ import { db, resellersTable, clientsTable, messagesTable, creditTransactionsTabl
 
 const router: IRouter = Router();
 
-router.get("/stats", async (_req, res): Promise<void> => {
+router.get("/stats", async (req, res): Promise<void> => {
+  const isReseller = req.user!.role === "reseller";
+  const resellerId = req.user!.resellerId;
+
+  if (isReseller && resellerId !== null) {
+    const [totalClientsResult] = await db.select({ count: count() }).from(clientsTable).where(eq(clientsTable.resellerId, resellerId));
+    const [activeClientsResult] = await db.select({ count: count() }).from(clientsTable).where(eq(clientsTable.resellerId, resellerId));
+    const [totalMessagesResult] = await db.select({ count: count() }).from(messagesTable).where(eq(messagesTable.resellerId, resellerId));
+    const [creditsResult] = await db.select({ total: sum(creditTransactionsTable.amount) }).from(creditTransactionsTable).where(eq(creditTransactionsTable.entityId, resellerId));
+    const recentMessages = await db.select().from(messagesTable).where(eq(messagesTable.resellerId, resellerId)).orderBy(messagesTable.createdAt).limit(10);
+
+    res.json({
+      totalResellers: 1,
+      activeResellers: 1,
+      totalClients: totalClientsResult?.count ?? 0,
+      activeClients: activeClientsResult?.count ?? 0,
+      totalMessagesSent: totalMessagesResult?.count ?? 0,
+      totalCreditsIssued: Number(creditsResult?.total ?? 0),
+      recentMessages,
+    });
+    return;
+  }
+
   const [totalResellersResult] = await db.select({ count: count() }).from(resellersTable);
-  const [activeResellersResult] = await db
-    .select({ count: count() })
-    .from(resellersTable)
-    .where(eq(resellersTable.status, "active"));
-
+  const [activeResellersResult] = await db.select({ count: count() }).from(resellersTable).where(eq(resellersTable.status, "active"));
   const [totalClientsResult] = await db.select({ count: count() }).from(clientsTable);
-  const [activeClientsResult] = await db
-    .select({ count: count() })
-    .from(clientsTable)
-    .where(eq(clientsTable.status, "active"));
-
+  const [activeClientsResult] = await db.select({ count: count() }).from(clientsTable).where(eq(clientsTable.status, "active"));
   const [totalMessagesResult] = await db.select({ count: count() }).from(messagesTable);
-
-  const [totalCreditsResult] = await db
-    .select({ total: sum(creditTransactionsTable.amount) })
-    .from(creditTransactionsTable)
-    .where(eq(creditTransactionsTable.type, "credit"));
-
-  const recentMessages = await db
-    .select()
-    .from(messagesTable)
-    .orderBy(messagesTable.createdAt)
-    .limit(10);
+  const [totalCreditsResult] = await db.select({ total: sum(creditTransactionsTable.amount) }).from(creditTransactionsTable).where(eq(creditTransactionsTable.type, "credit"));
+  const recentMessages = await db.select().from(messagesTable).orderBy(messagesTable.createdAt).limit(10);
 
   res.json({
     totalResellers: totalResellersResult?.count ?? 0,
@@ -41,15 +46,16 @@ router.get("/stats", async (_req, res): Promise<void> => {
   });
 });
 
-router.get("/stats/messages", async (_req, res): Promise<void> => {
+router.get("/stats/messages", async (req, res): Promise<void> => {
+  const isReseller = req.user!.role === "reseller";
+  const resellerId = req.user!.resellerId;
   const statuses = ["queued", "sent", "delivered", "failed"];
 
   const results = await Promise.all(
     statuses.map(async (status) => {
-      const [result] = await db
-        .select({ count: count() })
-        .from(messagesTable)
-        .where(eq(messagesTable.status, status));
+      const [result] = isReseller && resellerId !== null
+        ? await db.select({ count: count() }).from(messagesTable).where(eq(messagesTable.resellerId, resellerId))
+        : await db.select({ count: count() }).from(messagesTable).where(eq(messagesTable.status, status));
       return { status, count: result?.count ?? 0 };
     })
   );
