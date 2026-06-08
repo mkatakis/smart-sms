@@ -26,6 +26,7 @@ import type {
   CreditTopup,
   CreditTransaction,
   DashboardStats,
+  GatewayBalance,
   HealthStatus,
   ListClientsParams,
   ListCreditTransactionsParams,
@@ -1401,6 +1402,83 @@ export function useGetDashboardStats<TData = Awaited<ReturnType<typeof getDashbo
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetDashboardStatsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetGatewayBalanceUrl = () => {
+
+
+
+
+  return `/api/gateway/balance`
+}
+
+/**
+ * @summary Get GatewayAPI credit balance (admin only)
+ */
+export const getGatewayBalance = async ( options?: RequestInit): Promise<GatewayBalance> => {
+
+  return customFetch<GatewayBalance>(getGetGatewayBalanceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGatewayBalanceQueryKey = () => {
+    return [
+    `/api/gateway/balance`
+    ] as const;
+    }
+
+
+export const getGetGatewayBalanceQueryOptions = <TData = Awaited<ReturnType<typeof getGatewayBalance>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGatewayBalance>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGatewayBalanceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGatewayBalance>>> = ({ signal }) => getGatewayBalance({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGatewayBalance>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGatewayBalanceQueryResult = NonNullable<Awaited<ReturnType<typeof getGatewayBalance>>>
+export type GetGatewayBalanceQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get GatewayAPI credit balance (admin only)
+ */
+
+export function useGetGatewayBalance<TData = Awaited<ReturnType<typeof getGatewayBalance>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGatewayBalance>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGatewayBalanceQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

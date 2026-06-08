@@ -12,6 +12,7 @@ export * from './clientUpdate';
 export * from './creditTopup';
 export * from './creditTransaction';
 export * from './dashboardStats';
+export * from './gatewayBalance';
 export * from './healthStatus';
 export * from './listClientsParams';
 export * from './listCreditTransactionsParams';

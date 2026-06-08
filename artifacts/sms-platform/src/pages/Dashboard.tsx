@@ -1,12 +1,80 @@
-import { useGetDashboardStats, useGetMessageStats } from "@workspace/api-client-react";
+import { useGetDashboardStats, useGetMessageStats, useGetGatewayBalance } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCredits, formatDate } from "@/lib/utils";
 import { MessageStatusBadge } from "@/components/StatusBadges";
-import { Users, Contact, MessageSquare, CreditCard, Activity } from "lucide-react";
+import { Users, Contact, MessageSquare, CreditCard, Activity, AlertTriangle, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
+import { useAuth } from "@/contexts/AuthContext";
+
+function GatewayBalanceCard() {
+  const { data, isLoading, isError } = useGetGatewayBalance();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">GatewayAPI Balance</CardTitle>
+          <CreditCard className="w-4 h-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-8 w-24 mb-1" />
+          <Skeleton className="h-4 w-32" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">GatewayAPI Balance</CardTitle>
+          <CreditCard className="w-4 h-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-muted-foreground mt-2">Balance unavailable</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const creditNum = parseFloat(data.credit);
+  const isLow = creditNum < 10;
+  
+  const currencyMap: Record<string, string> = {
+    EUR: "€",
+    USD: "$",
+    GBP: "£",
+  };
+  const symbol = currencyMap[data.currency] || data.currency + " ";
+
+  return (
+    <Card className={isLow ? "border-red-500/50" : ""}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium flex items-center gap-2">
+          GatewayAPI Balance
+          {isLow && <AlertTriangle className="w-4 h-4 text-orange-500" />}
+        </CardTitle>
+        <CreditCard className={`w-4 h-4 ${isLow ? "text-orange-500" : "text-muted-foreground"}`} />
+      </CardHeader>
+      <CardContent>
+        <div className={`text-2xl font-bold font-mono ${isLow ? "text-orange-500" : ""}`}>
+          {symbol}{creditNum.toFixed(2)} {data.currency}
+        </div>
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-xs text-muted-foreground">remaining</p>
+          <a href="https://gatewayapi.com" target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
+            Top up <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats();
   const { data: messageStats, isLoading: messageStatsLoading } = useGetMessageStats();
 
@@ -55,6 +123,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {user?.role === "admin" && <GatewayBalanceCard />}
         {statCards.map((card, i) => {
           const Icon = card.icon;
           return (

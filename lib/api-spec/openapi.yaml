@@ -19,6 +19,8 @@ tags:
     description: Credit management
   - name: stats
     description: Dashboard statistics
+  - name: gateway
+    description: GatewayAPI operations
 
 paths:
   /healthz:
@@ -403,6 +405,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/DashboardStats"
 
+  /gateway/balance:
+    get:
+      operationId: getGatewayBalance
+      tags: [gateway]
+      summary: Get GatewayAPI credit balance (admin only)
+      responses:
+        "200":
+          description: Current balance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayBalance"
+        "403":
+          description: Forbidden
+        "502":
+          description: GatewayAPI unreachable
+
   /stats/messages:
     get:
       operationId: getMessageStats
@@ -637,3 +656,12 @@ components:
           type: string
         count:
           type: integer
+
+    GatewayBalance:
+      type: object
+      required: [credit, currency]
+      properties:
+        credit:
+          type: string
+        currency:
+          type: string

@@ -133,6 +133,11 @@ export interface MessageStatItem {
   count: number;
 }
 
+export interface GatewayBalance {
+  credit: string;
+  currency: string;
+}
+
 export type ListResellersParams = {
 status?: string;
 search?: string;

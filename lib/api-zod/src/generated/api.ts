@@ -376,6 +376,15 @@ export const GetDashboardStatsResponse = zod.object({
 
 
 /**
+ * @summary Get GatewayAPI credit balance (admin only)
+ */
+export const GetGatewayBalanceResponse = zod.object({
+  "credit": zod.string(),
+  "currency": zod.string()
+})
+
+
+/**
  * @summary Get message delivery stats by status
  */
 export const GetMessageStatsResponseItem = zod.object({

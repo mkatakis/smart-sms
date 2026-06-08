@@ -6,6 +6,7 @@ import clientsRouter from "./clients";
 import messagesRouter from "./messages";
 import creditsRouter from "./credits";
 import statsRouter from "./stats";
+import gatewayRouter from "./gateway";
 import { requireAuth } from "../middlewares/auth";
 
 const router: IRouter = Router();
@@ -20,5 +21,6 @@ router.use(clientsRouter);
 router.use(messagesRouter);
 router.use(creditsRouter);
 router.use(statsRouter);
+router.use(gatewayRouter);
 
 export default router;
