@@ -11,6 +11,8 @@ export const messagesTable = pgTable("messages", {
   body: text("body").notNull(),
   status: text("status").notNull().default("queued"),
   creditsCost: integer("credits_cost").notNull().default(1),
+  gatewayMessageId: text("gateway_message_id"),
+  gatewayErrorText: text("gateway_error_text"),
   sentAt: timestamp("sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

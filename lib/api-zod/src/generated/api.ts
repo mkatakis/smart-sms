@@ -279,6 +279,8 @@ export const ListMessagesResponseItem = zod.object({
   "body": zod.string(),
   "status": zod.string(),
   "creditsCost": zod.number(),
+  "gatewayMessageId": zod.string().nullish(),
+  "gatewayErrorText": zod.string().nullish(),
   "sentAt": zod.string().nullish(),
   "createdAt": zod.string()
 })
@@ -318,6 +320,8 @@ export const GetMessageResponse = zod.object({
   "body": zod.string(),
   "status": zod.string(),
   "creditsCost": zod.number(),
+  "gatewayMessageId": zod.string().nullish(),
+  "gatewayErrorText": zod.string().nullish(),
   "sentAt": zod.string().nullish(),
   "createdAt": zod.string()
 })
@@ -363,6 +367,8 @@ export const GetDashboardStatsResponse = zod.object({
   "body": zod.string(),
   "status": zod.string(),
   "creditsCost": zod.number(),
+  "gatewayMessageId": zod.string().nullish(),
+  "gatewayErrorText": zod.string().nullish(),
   "sentAt": zod.string().nullish(),
   "createdAt": zod.string()
 }))

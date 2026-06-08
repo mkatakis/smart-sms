@@ -552,6 +552,10 @@ components:
           type: string
         creditsCost:
           type: integer
+        gatewayMessageId:
+          type: ["string", "null"]
+        gatewayErrorText:
+          type: ["string", "null"]
         sentAt:
           type: ["string", "null"]
         createdAt:

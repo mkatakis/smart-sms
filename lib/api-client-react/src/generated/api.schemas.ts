@@ -83,6 +83,10 @@ export interface SmsMessage {
   status: string;
   creditsCost: number;
   /** @nullable */
+  gatewayMessageId?: string | null;
+  /** @nullable */
+  gatewayErrorText?: string | null;
+  /** @nullable */
   sentAt?: string | null;
   createdAt: string;
 }
