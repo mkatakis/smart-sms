@@ -41,7 +41,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             <div className="w-6 h-6 bg-sidebar-primary rounded flex items-center justify-center text-sidebar-primary-foreground">
               <Send className="w-3.5 h-3.5" />
             </div>
-            <span>NEXUS SMS</span>
+            <span>SmartSupport</span>
           </div>
         </div>
         
@@ -104,7 +104,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Nav (Mobile mostly, plus some global actions) */}
         <header className="h-14 border-b bg-card flex items-center justify-between px-4 shrink-0">
-          <div className="md:hidden font-mono font-bold">NEXUS SMS</div>
+          <div className="md:hidden font-mono font-bold">SmartSupport</div>
           <div className="flex-1" />
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">

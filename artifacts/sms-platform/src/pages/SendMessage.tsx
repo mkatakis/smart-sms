@@ -43,7 +43,7 @@ export default function SendMessage() {
     resolver: zodResolver(sendSchema),
     defaultValues: {
       senderType: "platform",
-      fromNumber: "NEXUS",
+      fromNumber: "SmartVoIP",
       toNumber: "",
       body: "",
     }
@@ -198,7 +198,7 @@ export default function SendMessage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Sender ID (From)</FormLabel>
-                      <FormControl><Input placeholder="NEXUS" {...field} /></FormControl>
+                      <FormControl><Input placeholder="SmartVoIP" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

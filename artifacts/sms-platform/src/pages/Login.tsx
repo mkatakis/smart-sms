@@ -38,7 +38,7 @@ export default function Login() {
             <div className="w-8 h-8 bg-sidebar-primary rounded flex items-center justify-center text-sidebar-primary-foreground">
               <Send className="w-4 h-4" />
             </div>
-            <span className="text-xl">NEXUS SMS</span>
+            <span className="text-xl">SmartSupport</span>
           </div>
           <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
           <CardDescription className="text-center text-sidebar-foreground/70">
